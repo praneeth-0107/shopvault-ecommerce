@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reports — Admin — ShopVault</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <div class="admin-layout">
+    <aside class="admin-sidebar">
+      <a href="/" class="logo"><div class="logo-icon">🛒</div> ShopVault</a>
+      <nav class="sidebar-nav">
+        <a href="/admin" class="sidebar-link"><span class="icon">📊</span> Dashboard</a>
+        <a href="/admin/products" class="sidebar-link"><span class="icon">📦</span> Products</a>
+        <a href="/admin/orders" class="sidebar-link"><span class="icon">🛍️</span> Orders</a>
+        <a href="/admin/customers" class="sidebar-link"><span class="icon">👥</span> Customers</a>
+        <a href="/admin/reports" class="sidebar-link active"><span class="icon">📈</span> Reports</a>
+        <div style="margin-top:auto; padding-top:32px; border-top:1px solid var(--border); margin-top:32px;">
+          <a href="/" class="sidebar-link"><span class="icon">🏪</span> View Store</a>
+          <a href="#" class="sidebar-link" onclick="logout()"><span class="icon">🚪</span> Logout</a>
+        </div>
+      </nav>
+    </aside>
+    <main class="admin-main">
+      <div class="admin-page-header">
+        <h1>📈 Sales & Order Reports</h1>
+        <div style="display:flex; gap:12px; align-items:center;">
+          <input type="date" id="startDate" class="form-input" style="width:auto;">
+          <span style="color:var(--text-muted);">to</span>
+          <input type="date" id="endDate" class="form-input" style="width:auto;">
+          <button class="btn btn-primary btn-sm" onclick="loadReports()">Apply</button>
+        </div>
+      </div>
+      <div id="reportsContent">
+        <div class="loading-spinner"><div class="spinner"></div></div>
+      </div>
+    </main>
+  </div>
+  <script src="/js/app.js"></script>
+  <script src="/js/admin/reports.js"></script>
+</body>
+</html>

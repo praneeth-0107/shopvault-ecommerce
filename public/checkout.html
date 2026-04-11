@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Checkout — ShopVault</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <header class="header" id="main-header"></header>
+  <main class="page-wrapper">
+    <div class="container" style="padding-top:32px; padding-bottom:64px;">
+      <div class="section-header" style="text-align:left;">
+        <h2>Secure <span>Checkout</span></h2>
+      </div>
+      <div class="checkout-grid">
+        <div>
+          <!-- Shipping Address -->
+          <div class="card" style="margin-bottom:24px;">
+            <div class="card-body">
+              <h3 style="margin-bottom:16px; font-weight:700;">📍 Shipping Address</h3>
+              <div class="form-group">
+                <textarea id="shippingAddress" class="form-textarea" rows="3" placeholder="Enter your complete delivery address"></textarea>
+              </div>
+            </div>
+          </div>
+          <!-- Cart Items Review -->
+          <div class="card">
+            <div class="card-body">
+              <h3 style="margin-bottom:16px; font-weight:700;">📦 Order Items</h3>
+              <div id="checkoutItems">
+                <div class="loading-spinner"><div class="spinner"></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Payment Summary -->
+        <div>
+          <div class="cart-summary" id="checkoutSummary">
+            <div class="loading-spinner"><div class="spinner"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Invoice Modal (shown after payment) -->
+      <div class="modal-overlay" id="invoiceModal">
+        <div class="modal">
+          <div id="invoiceContent"></div>
+        </div>
+      </div>
+    </div>
+  </main>
+  <!-- Razorpay Checkout SDK -->
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+  <script src="/js/app.js"></script>
+  <script src="/js/checkout.js"></script>
+</body>
+</html>
