@@ -114,12 +114,14 @@ function initializeDatabase() {
 // ==========================================
 // START SERVER
 // ==========================================
-function startServer() {
+// Initialize database
+initializeDatabase();
+testConnection();
+
+// For local development: start the server
+if (require.main === module) {
   console.log('\n🛒 E-Commerce Website with Secure Payment Integration');
   console.log('═══════════════════════════════════════════════════\n');
-
-  initializeDatabase();
-  testConnection();
 
   app.listen(PORT, () => {
     console.log(`\n🚀 Server running at http://localhost:${PORT}`);
@@ -131,4 +133,6 @@ function startServer() {
   });
 }
 
-startServer();
+// For Vercel: export the Express app
+module.exports = app;
+
