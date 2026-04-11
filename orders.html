@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Orders — ShopVault</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <header class="header" id="main-header"></header>
+  <main class="page-wrapper">
+    <div class="container" style="padding-top:32px; padding-bottom:64px;">
+      <div class="section-header" style="text-align:left;">
+        <h2>My <span>Orders</span></h2>
+        <p>Track and manage your order history</p>
+      </div>
+      <div id="ordersList">
+        <div class="loading-spinner"><div class="spinner"></div></div>
+      </div>
+    </div>
+  </main>
+  <!-- Order Detail Modal -->
+  <div class="modal-overlay" id="orderDetailModal">
+    <div class="modal" style="max-width:650px;">
+      <div class="modal-header">
+        <h2 id="orderDetailTitle">Order Details</h2>
+        <button class="modal-close" onclick="closeOrderModal()">✕</button>
+      </div>
+      <div id="orderDetailContent"></div>
+    </div>
+  </div>
+  <script src="/js/app.js"></script>
+  <script src="/js/orders.js"></script>
+</body>
+</html>

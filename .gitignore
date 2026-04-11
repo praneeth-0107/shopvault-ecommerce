@@ -4,3 +4,5 @@ ecommerce.db
 ecommerce.db-shm
 ecommerce.db-wal
 *.docx
+
+.vercel

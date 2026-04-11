@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="ShopVault — Premium E-Commerce with secure payments, auto-expiry discounts, and a seamless shopping experience.">
+  <title>ShopVault — Premium Online Shopping</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <header class="header" id="main-header"></header>
+
+  <main class="page-wrapper">
+    <!-- HERO SECTION -->
+    <section class="hero">
+      <div class="container">
+        <div class="hero-content">
+          <div class="hero-badge">✨ Smart Expiry Discounts — Up to 90% OFF</div>
+          <h1>Shop Smart,<br>Save <span>Big</span></h1>
+          <p>Discover premium products at unbeatable prices. Our intelligent expiry-discount system brings you massive savings on quality items — the closer to expiry, the bigger the discount!</p>
+          <div class="hero-buttons">
+            <a href="/products" class="btn btn-primary btn-lg">Browse Products</a>
+            <a href="/register" class="btn btn-secondary btn-lg" id="heroRegisterBtn">Create Account</a>
+          </div>
+          <div class="hero-stats">
+            <div class="hero-stat">
+              <h3 id="statProducts">15+</h3>
+              <p>Products</p>
+            </div>
+            <div class="hero-stat">
+              <h3>90%</h3>
+              <p>Max Discount</p>
+            </div>
+            <div class="hero-stat">
+              <h3>24/7</h3>
+              <p>Available</p>
+            </div>
+            <div class="hero-stat">
+              <h3>100%</h3>
+              <p>Secure Payments</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FEATURED PRODUCTS -->
+    <section class="section">
+      <div class="container">
+        <div class="section-header">
+          <h2>🔥 Hot <span>Deals</span></h2>
+          <p>Products with expiry discounts — grab them before they're gone!</p>
+        </div>
+        <div class="grid grid-4" id="featuredProducts">
+          <div class="loading-spinner"><div class="spinner"></div></div>
+        </div>
+        <div class="text-center mt-xl">
+          <a href="/products" class="btn btn-secondary btn-lg">View All Products →</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- HOW IT WORKS -->
+    <section class="section" style="background: var(--bg-secondary);">
+      <div class="container">
+        <div class="section-header">
+          <h2>How <span>Auto-Discount</span> Works</h2>
+          <p>Our smart expiry system automatically discounts products as they near their expiry date</p>
+        </div>
+        <div class="grid grid-3" style="max-width:900px; margin:0 auto;">
+          <div class="card" style="text-align:center;">
+            <div class="card-body">
+              <div style="font-size:48px; margin-bottom:16px;">📦</div>
+              <h3 class="card-title">Fresh Stock</h3>
+              <p class="card-text">&gt;15 days to expiry — Full price. Products at their freshest!</p>
+            </div>
+          </div>
+          <div class="card" style="text-align:center;">
+            <div class="card-body">
+              <div style="font-size:48px; margin-bottom:16px;">🏷️</div>
+              <h3 class="card-title">Smart Discounts</h3>
+              <p class="card-text">≤15 days — Discounts from 50% to 90% applied automatically!</p>
+            </div>
+          </div>
+          <div class="card" style="text-align:center;">
+            <div class="card-body">
+              <div style="font-size:48px; margin-bottom:16px;">💰</div>
+              <h3 class="card-title">You Save Big</h3>
+              <p class="card-text">Products still good, prices slashed. Great for smart shoppers!</p>
+            </div>
+          </div>
+        </div>
+        <!-- Discount Table -->
+        <div style="max-width:600px; margin:48px auto 0;">
+          <div class="table-container">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Remaining Days</th>
+                  <th>Discount</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td>&gt; 15 days</td><td style="color:var(--text-muted)">No discount</td></tr>
+                <tr><td>≤ 15 and &gt; 10</td><td style="color:var(--accent-warning)">50% OFF</td></tr>
+                <tr><td>≤ 10 and &gt; 5</td><td style="color:var(--accent-warm)">70% OFF</td></tr>
+                <tr><td>≤ 5 and &gt; 2</td><td style="color:var(--accent-danger)">80% OFF</td></tr>
+                <tr><td>2 days</td><td style="color:var(--accent-danger)">85% OFF</td></tr>
+                <tr><td>1 day</td><td style="color:var(--accent-danger); font-weight:700">90% OFF</td></tr>
+                <tr><td>≤ 0</td><td style="color:var(--text-muted)">Expired — Removed</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <a href="/" class="logo"><div class="logo-icon">🛒</div> ShopVault</a>
+          <p>Your trusted e-commerce platform with secure payments and intelligent pricing.</p>
+        </div>
+        <div class="footer-col">
+          <h4>Shop</h4>
+          <a href="/products">All Products</a>
+          <a href="/products?sort=expiry">Expiry Deals</a>
+          <a href="/cart">My Cart</a>
+        </div>
+        <div class="footer-col">
+          <h4>Account</h4>
+          <a href="/login">Login</a>
+          <a href="/register">Register</a>
+          <a href="/orders">My Orders</a>
+        </div>
+        <div class="footer-col">
+          <h4>Support</h4>
+          <a href="#">Help Center</a>
+          <a href="#">Contact Us</a>
+          <a href="#">Privacy Policy</a>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        &copy; 2026 ShopVault. E-Commerce with Secure Payment Integration. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+  <script src="/js/app.js"></script>
+  <script src="/js/home.js"></script>
+</body>
+</html>

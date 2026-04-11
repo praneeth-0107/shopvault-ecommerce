@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shopping Cart — ShopVault</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <header class="header" id="main-header"></header>
+  <main class="page-wrapper">
+    <div class="container cart-page">
+      <div class="section-header" style="text-align:left;">
+        <h2>Shopping <span>Cart</span></h2>
+      </div>
+      <div style="display:grid; grid-template-columns:1fr 360px; gap:32px; align-items:start;" id="cartLayout">
+        <div id="cartItems">
+          <div class="loading-spinner"><div class="spinner"></div></div>
+        </div>
+        <div id="cartSummary"></div>
+      </div>
+    </div>
+  </main>
+  <script src="/js/app.js"></script>
+  <script src="/js/cart.js"></script>
+</body>
+</html>
