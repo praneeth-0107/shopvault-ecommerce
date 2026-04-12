@@ -11,11 +11,12 @@ try {
   Razorpay = require('razorpay');
   if (process.env.RAZORPAY_KEY_ID && !process.env.RAZORPAY_KEY_ID.includes('placeholder')) {
     razorpayInstance = new Razorpay({
-      key_id: process.env.RAZORPAY_KEY_ID,
-      key_secret: process.env.RAZORPAY_KEY_SECRET
+      key_id: process.env.RAZORPAY_KEY_ID.trim(),
+      key_secret: process.env.RAZORPAY_KEY_SECRET.trim()
     });
     isSimulationMode = false;
     console.log('💳 Razorpay: Live mode');
+    console.log(`   Key: ${process.env.RAZORPAY_KEY_ID.trim().substring(0, 10)}...  Secret length: ${process.env.RAZORPAY_KEY_SECRET.trim().length}`);
   } else {
     console.log('💳 Razorpay: Simulation mode (set real keys in .env for live payments)');
   }
