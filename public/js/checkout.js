@@ -1,14 +1,163 @@
 /**
  * checkout.js — Checkout flow using Razorpay Payment Gateway
  * Supports: UPI, Cards, Net Banking, Wallets — all handled by Razorpay
+ * Includes: Google Maps embed, geolocation auto-detect, mandatory address
  */
 let cartData = null;
 
 document.addEventListener('DOMContentLoaded', () => {
   if (!requireAuth()) return;
   loadCheckout();
+
+  // Update the map whenever the user changes address fields (debounced)
+  let mapUpdateTimer = null;
+  ['addressStreet', 'addressCity', 'addressState', 'addressPincode'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.addEventListener('input', () => {
+        clearTimeout(mapUpdateTimer);
+        mapUpdateTimer = setTimeout(() => updateMapFromFields(), 1200);
+      });
+    }
+  });
 });
 
+// ==========================================
+// ADDRESS HELPERS
+// ==========================================
+
+/** Build full address string from individual fields */
+function buildFullAddress() {
+  const street = (document.getElementById('addressStreet')?.value || '').trim();
+  const city = (document.getElementById('addressCity')?.value || '').trim();
+  const state = (document.getElementById('addressState')?.value || '').trim();
+  const pincode = (document.getElementById('addressPincode')?.value || '').trim();
+  const landmark = (document.getElementById('addressLandmark')?.value || '').trim();
+
+  const parts = [street, landmark, city, state, pincode].filter(Boolean);
+  return parts.join(', ');
+}
+
+/** Validate mandatory address fields — returns true if valid */
+function validateAddress() {
+  const street = (document.getElementById('addressStreet')?.value || '').trim();
+  const city = (document.getElementById('addressCity')?.value || '').trim();
+  const state = (document.getElementById('addressState')?.value || '').trim();
+  const pincode = (document.getElementById('addressPincode')?.value || '').trim();
+
+  if (!street) { showToast('Please enter your street / house / flat number.', 'error'); document.getElementById('addressStreet').focus(); return false; }
+  if (!city) { showToast('Please enter your city.', 'error'); document.getElementById('addressCity').focus(); return false; }
+  if (!state) { showToast('Please enter your state.', 'error'); document.getElementById('addressState').focus(); return false; }
+  if (!pincode || pincode.length < 5) { showToast('Please enter a valid pincode.', 'error'); document.getElementById('addressPincode').focus(); return false; }
+  return true;
+}
+
+/** Update the Google Maps embed iframe from current field values */
+function updateMapFromFields() {
+  const address = buildFullAddress();
+  if (address.length > 5) {
+    showMapForAddress(address);
+  }
+}
+
+/** Show a Google Maps embed for a given address string (no API key needed) */
+function showMapForAddress(address) {
+  const container = document.getElementById('mapContainer');
+  if (!container) return;
+  const q = encodeURIComponent(address);
+  container.innerHTML = `<iframe
+    src="https://www.google.com/maps?q=${q}&output=embed"
+    allowfullscreen loading="lazy"
+    referrerpolicy="no-referrer-when-downgrade"
+    style="width:100%;height:100%;border:0;border-radius:var(--radius-md);"
+  ></iframe>`;
+}
+
+/** Show map for lat/lng coordinates */
+function showMapForCoords(lat, lng) {
+  const container = document.getElementById('mapContainer');
+  if (!container) return;
+  container.innerHTML = `<iframe
+    src="https://www.google.com/maps?q=${lat},${lng}&z=16&output=embed"
+    allowfullscreen loading="lazy"
+    referrerpolicy="no-referrer-when-downgrade"
+    style="width:100%;height:100%;border:0;border-radius:var(--radius-md);"
+  ></iframe>`;
+}
+
+// ==========================================
+// GEOLOCATION — "Detect My Location"
+// ==========================================
+async function locateMe() {
+  const btn = document.getElementById('locateMeBtn');
+  if (!navigator.geolocation) {
+    showToast('Geolocation is not supported by your browser.', 'error');
+    return;
+  }
+
+  btn.disabled = true;
+  btn.innerHTML = '<div class="btn-spinner"></div> Detecting…';
+
+  navigator.geolocation.getCurrentPosition(
+    async (position) => {
+      const { latitude, longitude } = position.coords;
+
+      // Show map immediately
+      showMapForCoords(latitude, longitude);
+
+      // Reverse-geocode using free Nominatim API
+      try {
+        const resp = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json&addressdetails=1`, {
+          headers: { 'Accept-Language': 'en' }
+        });
+        const geo = await resp.json();
+
+        if (geo && geo.address) {
+          const a = geo.address;
+          // Fill fields
+          const road = [a.house_number, a.road || a.pedestrian || a.neighbourhood || ''].filter(Boolean).join(' ');
+          document.getElementById('addressStreet').value = road || a.suburb || '';
+          document.getElementById('addressCity').value = a.city || a.town || a.village || a.county || '';
+          document.getElementById('addressState').value = a.state || '';
+          document.getElementById('addressPincode').value = a.postcode || '';
+          document.getElementById('addressLandmark').value = a.suburb || a.neighbourhood || '';
+
+          showToast('Location detected successfully! 📍', 'success');
+
+          // Update map with full address for better pin
+          setTimeout(() => updateMapFromFields(), 500);
+        } else {
+          showToast('Could not determine address. Please fill manually.', 'warning');
+        }
+      } catch (err) {
+        console.error('Reverse geocoding error:', err);
+        showToast('Location detected but address lookup failed. Please fill manually.', 'warning');
+      }
+
+      btn.disabled = false;
+      btn.innerHTML = '📍 Detect My Location';
+    },
+    (error) => {
+      btn.disabled = false;
+      btn.innerHTML = '📍 Detect My Location';
+      switch (error.code) {
+        case error.PERMISSION_DENIED:
+          showToast('Location permission denied. Please allow location access or enter address manually.', 'error');
+          break;
+        case error.POSITION_UNAVAILABLE:
+          showToast('Location unavailable. Please enter address manually.', 'error');
+          break;
+        default:
+          showToast('Could not detect location. Please enter address manually.', 'error');
+      }
+    },
+    { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 }
+  );
+}
+
+// ==========================================
+// CHECKOUT LOAD
+// ==========================================
 async function loadCheckout() {
   const { ok, data } = await apiGet('/api/cart');
 
@@ -37,10 +186,14 @@ async function loadCheckout() {
     `;
   }).join('');
 
-  // Pre-fill address if available
+  // Pre-fill address if available from profile
   const { data: profileData } = await apiGet('/api/auth/profile');
   if (profileData && profileData.user && profileData.user.Address) {
-    document.getElementById('shippingAddress').value = profileData.user.Address;
+    const addr = profileData.user.Address;
+    // Try to fill the street field with the full address (user can adjust)
+    document.getElementById('addressStreet').value = addr;
+    // Show map for the existing address
+    setTimeout(() => showMapForAddress(addr), 500);
   }
 
   // Render summary
@@ -80,12 +233,20 @@ async function loadCheckout() {
   `;
 }
 
+// ==========================================
+// PLACE ORDER
+// ==========================================
 async function placeOrder() {
+  // Validate address is filled
+  if (!validateAddress()) return;
+
   const btn = document.getElementById('placeOrderBtn');
   btn.disabled = true;
   btn.textContent = 'Processing...';
 
-  const shippingAddress = document.getElementById('shippingAddress').value.trim();
+  // Build full address from fields
+  const shippingAddress = buildFullAddress();
+  document.getElementById('shippingAddress').value = shippingAddress;
 
   // Step 1: Place the order
   const { ok, data } = await apiPost('/api/orders', { shippingAddress });
@@ -234,3 +395,4 @@ async function showInvoice(orderId) {
 
   document.getElementById('invoiceModal').classList.add('active');
 }
+

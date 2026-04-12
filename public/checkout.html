@@ -5,6 +5,62 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Checkout — ShopVault</title>
   <link rel="stylesheet" href="/css/style.css">
+  <style>
+    /* ---- Address Section Styles ---- */
+    .address-section { display: flex; flex-direction: column; gap: 16px; }
+    .address-locate-btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 10px 20px; border: none; border-radius: var(--radius-sm);
+      background: linear-gradient(135deg, #6C5CE7, #a29bfe);
+      color: #fff; font-weight: 600; font-size: 14px; cursor: pointer;
+      transition: all 0.3s ease; box-shadow: 0 2px 12px rgba(108,92,231,0.25);
+    }
+    .address-locate-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 18px rgba(108,92,231,0.4); }
+    .address-locate-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+    .address-locate-btn .btn-spinner {
+      width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: #fff; border-radius: 50%; animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .address-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .address-fields .full-width { grid-column: 1 / -1; }
+    .address-fields input, .address-fields textarea {
+      width: 100%; padding: 11px 14px; border: 1px solid var(--border);
+      border-radius: var(--radius-sm); font-size: 14px; font-family: inherit;
+      background: var(--card-bg); color: var(--text-primary);
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .address-fields input:focus, .address-fields textarea:focus {
+      outline: none; border-color: #6C5CE7;
+      box-shadow: 0 0 0 3px rgba(108,92,231,0.15);
+    }
+    .address-fields label {
+      display: block; font-size: 12px; font-weight: 600;
+      color: var(--text-muted); margin-bottom: 4px; text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .address-fields .field-group { display: flex; flex-direction: column; }
+
+    .map-container {
+      width: 100%; height: 220px; border-radius: var(--radius-md);
+      overflow: hidden; border: 1px solid var(--border);
+      background: var(--bg-secondary); position: relative;
+    }
+    .map-container iframe { width: 100%; height: 100%; border: 0; }
+    .map-placeholder {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      height: 100%; color: var(--text-muted); gap: 8px; font-size: 13px;
+    }
+    .map-placeholder .map-icon { font-size: 36px; opacity: 0.5; }
+    .address-mandatory {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 12px; color: var(--accent-error, #e74c3c); font-weight: 500;
+    }
+    @media (max-width: 600px) {
+      .address-fields { grid-template-columns: 1fr; }
+    }
+  </style>
 </head>
 <body>
   <header class="header" id="main-header"></header>
@@ -15,12 +71,55 @@
       </div>
       <div class="checkout-grid">
         <div>
-          <!-- Shipping Address -->
+          <!-- Shipping Address with Map -->
           <div class="card" style="margin-bottom:24px;">
             <div class="card-body">
-              <h3 style="margin-bottom:16px; font-weight:700;">📍 Shipping Address</h3>
-              <div class="form-group">
-                <textarea id="shippingAddress" class="form-textarea" rows="3" placeholder="Enter your complete delivery address"></textarea>
+              <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; flex-wrap:wrap; gap:8px;">
+                <h3 style="font-weight:700; margin:0;">📍 Shipping Address</h3>
+                <div class="address-mandatory">⚠️ Required to place order</div>
+              </div>
+
+              <div class="address-section">
+                <!-- Locate Me Button -->
+                <button class="address-locate-btn" id="locateMeBtn" onclick="locateMe()">
+                  📍 Detect My Location
+                </button>
+
+                <!-- Address Fields -->
+                <div class="address-fields">
+                  <div class="field-group full-width">
+                    <label for="addressStreet">Street / House / Flat No.</label>
+                    <textarea id="addressStreet" rows="2" placeholder="e.g. Flat 402, Sunshine Apartments, MG Road"></textarea>
+                  </div>
+                  <div class="field-group">
+                    <label for="addressCity">City</label>
+                    <input type="text" id="addressCity" placeholder="e.g. Hyderabad">
+                  </div>
+                  <div class="field-group">
+                    <label for="addressState">State</label>
+                    <input type="text" id="addressState" placeholder="e.g. Telangana">
+                  </div>
+                  <div class="field-group">
+                    <label for="addressPincode">Pincode</label>
+                    <input type="text" id="addressPincode" placeholder="e.g. 500001" maxlength="6" pattern="[0-9]{5,6}">
+                  </div>
+                  <div class="field-group">
+                    <label for="addressLandmark">Landmark (optional)</label>
+                    <input type="text" id="addressLandmark" placeholder="e.g. Near City Mall">
+                  </div>
+                </div>
+
+                <!-- Hidden full-address field used for order submission -->
+                <input type="hidden" id="shippingAddress">
+
+                <!-- Google Maps Embed (no API key needed for embed) -->
+                <div class="map-container" id="mapContainer">
+                  <div class="map-placeholder" id="mapPlaceholder">
+                    <div class="map-icon">🗺️</div>
+                    <div>Your delivery location will appear here</div>
+                    <div style="font-size:11px;">Click "Detect My Location" or fill in your address</div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -56,3 +155,4 @@
   <script src="/js/checkout.js"></script>
 </body>
 </html>
+
