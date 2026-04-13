@@ -48,6 +48,8 @@ app.get('/product/:id', (req, res) => res.sendFile(path.join(__dirname, 'public'
 app.get('/cart', (req, res) => res.sendFile(path.join(__dirname, 'public', 'cart.html')));
 app.get('/checkout', (req, res) => res.sendFile(path.join(__dirname, 'public', 'checkout.html')));
 app.get('/orders', (req, res) => res.sendFile(path.join(__dirname, 'public', 'orders.html')));
+app.get('/profile', (req, res) => res.sendFile(path.join(__dirname, 'public', 'profile.html')));
+app.get('/reset-password', (req, res) => res.sendFile(path.join(__dirname, 'public', 'reset-password.html')));
 
 // Admin pages
 app.get('/admin', (req, res) => res.sendFile(path.join(__dirname, 'public', 'admin', 'dashboard.html')));
@@ -123,9 +125,21 @@ if (require.main === module) {
   console.log('\n🛒 E-Commerce Website with Secure Payment Integration');
   console.log('═══════════════════════════════════════════════════\n');
 
-  app.listen(PORT, () => {
+  app.listen(PORT, '0.0.0.0', () => {
+    const os = require('os');
+    const nets = os.networkInterfaces();
+    let localIP = 'unknown';
+    for (const name of Object.keys(nets)) {
+      for (const net of nets[name]) {
+        if (net.family === 'IPv4' && !net.internal) {
+          localIP = net.address;
+        }
+      }
+    }
+
     console.log(`\n🚀 Server running at http://localhost:${PORT}`);
     console.log(`📱 Customer:  http://localhost:${PORT}`);
+    console.log(`🌐 Network:   http://${localIP}:${PORT}  (use this on other devices)`);
     console.log(`🔧 Admin:     http://localhost:${PORT}/admin`);
     console.log(`\n📧 Default Admin Login:`);
     console.log(`   Email:    admin@ecommerce.com`);

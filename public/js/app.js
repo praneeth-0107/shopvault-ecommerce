@@ -183,6 +183,7 @@ function renderHeader() {
           <a href="/" class="nav-link ${location.pathname === '/' ? 'active' : ''}">Home</a>
           <a href="/products" class="nav-link ${location.pathname === '/products' ? 'active' : ''}">Products</a>
           ${user ? `<a href="/orders" class="nav-link ${location.pathname === '/orders' ? 'active' : ''}">My Orders</a>` : ''}
+          ${user ? `<a href="/profile" class="nav-link ${location.pathname === '/profile' ? 'active' : ''}">My Profile</a>` : ''}
           ${user && user.role === 'admin' ? `<a href="/admin" class="nav-link">Admin Panel</a>` : ''}
         </div>
         <div class="nav-actions">
@@ -192,7 +193,7 @@ function renderHeader() {
               <span class="cart-badge" id="cartBadge" style="display:none">0</span>
             </a>
             <div class="flex gap-sm" style="align-items:center">
-              <span style="font-size:13px;color:var(--text-muted)">Hi, ${user.name.split(' ')[0]}</span>
+              <a href="/profile" style="font-size:13px;color:var(--text-muted);text-decoration:none;" title="View Profile">Hi, ${user.name.split(' ')[0]}</a>
               <button class="btn btn-ghost btn-sm" onclick="logout()">Logout</button>
             </div>
           ` : `

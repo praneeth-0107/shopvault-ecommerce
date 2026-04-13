@@ -10,6 +10,10 @@ async function getAllProducts(req, res) {
   try {
     const { search, category, minPrice, maxPrice, sort, page = 1, limit = 12 } = req.query;
 
+    // We need ALL matching products first (before pagination) when sorting by price,
+    // because price sorting must happen AFTER discount calculation
+    const sortByPrice = (sort === 'price_asc' || sort === 'price_desc');
+
     let query = 'SELECT * FROM products WHERE 1=1';
     const params = [];
 
@@ -25,7 +29,7 @@ async function getAllProducts(req, res) {
       params.push(category);
     }
 
-    // Filter by price range
+    // Filter by price range (on original price — we'll also filter post-discount below)
     if (minPrice) {
       query += ' AND Price >= ?';
       params.push(parseFloat(minPrice));
@@ -35,41 +39,56 @@ async function getAllProducts(req, res) {
       params.push(parseFloat(maxPrice));
     }
 
-    // Sorting
-    switch (sort) {
-      case 'price_asc':
-        query += ' ORDER BY Price ASC';
-        break;
-      case 'price_desc':
-        query += ' ORDER BY Price DESC';
-        break;
-      case 'name_asc':
-        query += ' ORDER BY Product_Name ASC';
-        break;
-      case 'name_desc':
-        query += ' ORDER BY Product_Name DESC';
-        break;
-      case 'newest':
-        query += ' ORDER BY Created_At DESC';
-        break;
-      case 'expiry':
-        query += ' ORDER BY Expiry_Date ASC';
-        break;
-      default:
-        query += ' ORDER BY Created_At DESC';
+    // SQL sorting — for price sorts, we skip SQL ORDER BY and do it in JS
+    if (!sortByPrice) {
+      switch (sort) {
+        case 'name_asc':
+          query += ' ORDER BY Product_Name ASC';
+          break;
+        case 'name_desc':
+          query += ' ORDER BY Product_Name DESC';
+          break;
+        case 'newest':
+          query += ' ORDER BY Created_At DESC';
+          break;
+        case 'expiry':
+          query += ' ORDER BY Expiry_Date ASC';
+          break;
+        default:
+          query += ' ORDER BY Created_At DESC';
+      }
     }
 
-    // Pagination
-    const offset = (parseInt(page) - 1) * parseInt(limit);
-    query += ' LIMIT ? OFFSET ?';
-    params.push(parseInt(limit), offset);
+    // For price sorting, fetch all matching products (no LIMIT in SQL)
+    // For other sorts, use SQL pagination
+    if (!sortByPrice) {
+      const offset = (parseInt(page) - 1) * parseInt(limit);
+      query += ' LIMIT ? OFFSET ?';
+      params.push(parseInt(limit), offset);
+    }
 
     const [products] = await pool.execute(query, params);
 
     // Apply auto-expiry discounts (exclude expired for customers)
-    const productsWithDiscount = applyExpiryDiscountToAll(products, false);
+    let productsWithDiscount = applyExpiryDiscountToAll(products, false);
+
+    // Sort by effective (discounted) price in JS
+    if (sort === 'price_asc') {
+      productsWithDiscount.sort((a, b) => a.Effective_Price - b.Effective_Price);
+    } else if (sort === 'price_desc') {
+      productsWithDiscount.sort((a, b) => b.Effective_Price - a.Effective_Price);
+    }
 
     // Get total count for pagination
+    const totalFiltered = productsWithDiscount.length;
+
+    // Apply pagination manually for price-sorted results
+    if (sortByPrice) {
+      const offset = (parseInt(page) - 1) * parseInt(limit);
+      productsWithDiscount = productsWithDiscount.slice(offset, offset + parseInt(limit));
+    }
+
+    // Get total count for pagination info
     let countQuery = 'SELECT COUNT(*) as total FROM products WHERE 1=1';
     const countParams = [];
     if (search) {
@@ -90,7 +109,7 @@ async function getAllProducts(req, res) {
     }
 
     const [countResult] = await pool.execute(countQuery, countParams);
-    const total = countResult[0].total;
+    const total = sortByPrice ? totalFiltered : countResult[0].total;
 
     // Get all categories for filter
     const [categories] = await pool.execute('SELECT DISTINCT Category FROM products ORDER BY Category');

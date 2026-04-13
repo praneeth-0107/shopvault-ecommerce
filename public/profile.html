@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Your ShopVault profile — manage your account details and view order history.">
+  <title>My Profile — ShopVault</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <style>
+    .profile-grid { display: grid; grid-template-columns: 340px 1fr; gap: 24px; }
+    @media (max-width: 900px) { .profile-grid { grid-template-columns: 1fr; } }
+
+    /* Profile Card */
+    .profile-card {
+      background: var(--gradient-card);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-xl);
+      padding: 32px 24px;
+      text-align: center;
+      position: sticky; top: 96px; align-self: start;
+    }
+    .profile-avatar {
+      width: 90px; height: 90px; border-radius: 50%;
+      background: var(--gradient-primary);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 36px; margin: 0 auto 16px; color: #fff;
+      box-shadow: 0 4px 20px rgba(108,92,231,0.4);
+    }
+    .profile-name {
+      font-size: 22px; font-weight: 700; margin-bottom: 4px;
+    }
+    .profile-email {
+      color: var(--text-muted); font-size: 13px; margin-bottom: 20px;
+      word-break: break-all;
+    }
+    .profile-info-list { text-align: left; }
+    .profile-info-item {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 12px 0; border-bottom: 1px solid var(--border);
+      font-size: 14px;
+    }
+    .profile-info-item:last-child { border-bottom: none; }
+    .profile-info-label { color: var(--text-muted); font-weight: 500; }
+    .profile-info-value { color: var(--text-primary); font-weight: 600; text-align: right; max-width: 60%; }
+    .profile-edit-btn {
+      margin-top: 20px; width: 100%;
+      padding: 12px; border-radius: var(--radius-md);
+      background: var(--gradient-accent); color: #fff;
+      font-weight: 600; font-size: 14px; border: none; cursor: pointer;
+      transition: all 0.3s;
+    }
+    .profile-edit-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 18px rgba(0,210,255,0.3); }
+
+    /* Stats Row */
+    .profile-stats {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;
+      margin-bottom: 24px;
+    }
+    .stat-card {
+      background: var(--gradient-card); border: 1px solid var(--glass-border);
+      border-radius: var(--radius-md); padding: 16px; text-align: center;
+    }
+    .stat-value { font-size: 24px; font-weight: 800; color: var(--accent); }
+    .stat-label { font-size: 11px; color: var(--text-muted); margin-top: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
+
+    /* Orders Section */
+    .profile-orders-section {
+      background: var(--gradient-card);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-xl);
+      padding: 24px;
+    }
+    .profile-orders-section h3 { font-size: 18px; font-weight: 700; margin-bottom: 16px; }
+    .profile-order-row {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 16px; border-radius: var(--radius-md);
+      background: rgba(255,255,255,0.02);
+      border: 1px solid var(--border);
+      margin-bottom: 10px; transition: all 0.2s; cursor: pointer;
+      flex-wrap: wrap; gap: 8px;
+    }
+    .profile-order-row:hover { border-color: var(--border-hover); background: rgba(108,92,231,0.05); }
+    .profile-order-id { font-weight: 700; font-size: 14px; color: var(--primary-light); min-width: 120px; }
+    .profile-order-date { color: var(--text-muted); font-size: 12px; }
+    .profile-order-amount { font-weight: 700; font-size: 15px; color: var(--accent); }
+
+    /* Edit Modal */
+    .edit-form-group { margin-bottom: 16px; }
+    .edit-form-group label { display: block; font-size: 12px; font-weight: 600; color: var(--text-muted); margin-bottom: 4px; text-transform: uppercase; }
+    .edit-form-group input {
+      width: 100%; padding: 11px 14px; border: 1px solid var(--border);
+      border-radius: var(--radius-sm); font-size: 14px; font-family: inherit;
+      background: var(--bg-input); color: var(--text-primary);
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .edit-form-group input:focus { outline: none; border-color: #6C5CE7; box-shadow: 0 0 0 3px rgba(108,92,231,0.15); }
+  </style>
+</head>
+<body>
+  <header class="header" id="main-header"></header>
+  <main class="page-wrapper">
+    <div class="container" style="padding-top:32px; padding-bottom:64px;">
+      <div class="section-header" style="text-align:left;">
+        <h2>My <span>Profile</span></h2>
+        <p>Manage your account and view order history</p>
+      </div>
+
+      <div class="profile-grid">
+        <!-- Left: Profile Info Card -->
+        <div>
+          <div class="profile-card" id="profileCard">
+            <div class="loading-spinner"><div class="spinner"></div></div>
+          </div>
+        </div>
+
+        <!-- Right: Stats + Orders -->
+        <div>
+          <div class="profile-stats" id="profileStats">
+            <div class="stat-card"><div class="loading-spinner"><div class="spinner"></div></div></div>
+          </div>
+          <div class="profile-orders-section" id="profileOrders">
+            <div class="loading-spinner"><div class="spinner"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Edit Profile Modal -->
+  <div class="modal-overlay" id="editProfileModal">
+    <div class="modal" style="max-width:450px;">
+      <div class="modal-header">
+        <h2>Edit Profile</h2>
+        <button class="modal-close" onclick="closeEditModal()">✕</button>
+      </div>
+      <form id="editProfileForm">
+        <div class="edit-form-group">
+          <label for="editName">Full Name</label>
+          <input type="text" id="editName" required placeholder="Your full name">
+        </div>
+        <div class="edit-form-group">
+          <label for="editMobile">Phone Number</label>
+          <input type="text" id="editMobile" placeholder="10-digit mobile number" maxlength="10">
+        </div>
+        <div class="edit-form-group">
+          <label for="editAddress">Address</label>
+          <input type="text" id="editAddress" placeholder="Your delivery address">
+        </div>
+        <button type="submit" class="btn btn-primary btn-block btn-lg" id="saveProfileBtn">💾 Save Changes</button>
+      </form>
+    </div>
+  </div>
+
+  <script src="/js/app.js"></script>
+  <script src="/js/profile.js"></script>
+</body>
+</html>
