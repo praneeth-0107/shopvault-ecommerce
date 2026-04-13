@@ -322,7 +322,7 @@ async function forgotPassword(req, res) {
       console.error('❌ Email sending failed:', emailError.message);
       return res.status(500).json({
         success: false,
-        message: 'Failed to send reset email. Please check email configuration.'
+        message: `Failed to send reset email. Configuration error or network issue. Error details: ${emailError.message}`
       });
     }
 
