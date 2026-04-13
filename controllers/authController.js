@@ -9,11 +9,17 @@ const { generateId, isValidEmail, isValidMobile, isValidPassword } = require('..
 // EMAIL TRANSPORTER (Gmail SMTP)
 // ==========================================
 const transporter = nodemailer.createTransport({
-  service: 'gmail',
+  host: 'smtp.gmail.com',
+  port: 587,
+  secure: false, // Upgrade later with STARTTLS
+  requireTLS: true,
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS
-  }
+  },
+  connectionTimeout: 10000, // 10 sec timeout to prevent hanging
+  greetingTimeout: 10000,
+  socketTimeout: 10000
 });
 
 /**
